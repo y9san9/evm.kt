@@ -1,0 +1,19 @@
+# Ignore Gradle project-specific cache directory
+.gradle
+.kotlin
+.idea
+__pycache__
+tags
+
+# Ignore Gradle build output directory
+build
+
+# User files
+.DS_Store
+local.*
+*.local
+*.local.*
+.claude/chains
+.codex
+
+TESTING*
