@@ -26,10 +26,7 @@ public object EvmBigNumberSerializer : KSerializer<EvmBigNumber> {
         return EvmBigNumber.orThrow(string)
     }
 
-    override fun serialize(
-        encoder: Encoder,
-        value: EvmBigNumber,
-    ) {
+    override fun serialize(encoder: Encoder, value: EvmBigNumber) {
         encoder as JsonEncoder
         val literal = JsonUnquotedLiteral(value.toPlainString())
         encoder.encodeJsonElement(literal)

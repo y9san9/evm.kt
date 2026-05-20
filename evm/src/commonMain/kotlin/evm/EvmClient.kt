@@ -3,12 +3,11 @@ package evm
 import io.ktor.client.HttpClient
 import kotlinx.serialization.json.Json
 
-public fun EvmClient(endpoint: String): EvmClient =
-    EvmClient(
-        endpoint = EvmUrl(endpoint),
-        httpClient = HttpClient(),
-        json = Json,
-    )
+public fun EvmClient(endpoint: String): EvmClient = EvmClient(
+    endpoint = EvmUrl(endpoint),
+    httpClient = HttpClient(),
+    json = Json,
+)
 
 /**
  * Entry point that holds config to use this library. Library code was written
@@ -35,10 +34,9 @@ public class EvmClient(
      *     executor.getBalance()
      * }
      */
-    public inline fun <T> use(block: (EvmExecutor) -> T): EvmIO<T> =
-        try {
-            EvmIO.Success(block(unsafe))
-        } catch (exception: EvmIO.Exception) {
-            EvmIO.Error(EvmIO.Exception(exception))
-        }
+    public inline fun <T> use(block: (EvmExecutor) -> T): EvmIO<T> = try {
+        EvmIO.Success(block(unsafe))
+    } catch (exception: EvmIO.Exception) {
+        EvmIO.Error(EvmIO.Exception(exception))
+    }
 }

@@ -19,7 +19,8 @@ public actual class EvmBigNumber(
         return EvmBigNumber(underlying)
     }
 
-    public actual operator fun unaryMinus(): EvmBigNumber = EvmBigNumber(underlying.negate())
+    public actual operator fun unaryMinus(): EvmBigNumber =
+        EvmBigNumber(underlying.negate())
 
     public actual operator fun unaryPlus(): EvmBigNumber = this
 
@@ -62,7 +63,8 @@ public actual class EvmBigNumber(
         return compareTo(other) == 0
     }
 
-    actual override fun compareTo(other: EvmBigNumber): Int = this.underlying.compareTo(other.underlying)
+    actual override fun compareTo(other: EvmBigNumber): Int =
+        this.underlying.compareTo(other.underlying)
 
     actual override fun toString(): String = underlying.toString()
 
@@ -84,5 +86,6 @@ public actual class EvmBigNumber(
         }
     }
 
-    actual override fun hashCode(): Int = underlying.stripTrailingZeros().hashCode()
+    actual override fun hashCode(): Int =
+        underlying.stripTrailingZeros().hashCode()
 }
