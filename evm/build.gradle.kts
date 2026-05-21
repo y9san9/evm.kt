@@ -25,4 +25,6 @@ dependencies {
     commonMainImplementation(libs.kotlinx.serialization.json)
     commonMainImplementation(libs.ktor.client.core)
     commonMainImplementation(libs.ktor.client.cio)
+    commonMainImplementation(libs.ktor.client.content.negotiation)
+    commonMainImplementation(libs.ktor.client.serialization.json)
 }

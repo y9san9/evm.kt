@@ -7,9 +7,10 @@ import kotlinx.serialization.json.Json
  * to the Internet and does not perform any IO.
  */
 public class EvmRequests(private val json: Json) {
-    public fun getBalance(): EvmRequest<Unit> = buildEvmRequest {
-        method = "..."
-        decoder {
+    public fun getBlockNumber(): EvmRequest<EvmBigNumber> = buildEvmRequest {
+        method = "eth_blockNumber"
+        handler {
+            responseType<EvmBigNumber>()
         }
     }
 

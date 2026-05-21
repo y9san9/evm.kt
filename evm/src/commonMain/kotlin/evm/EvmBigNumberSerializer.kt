@@ -23,6 +23,9 @@ public object EvmBigNumberSerializer : KSerializer<EvmBigNumber> {
     override fun deserialize(decoder: Decoder): EvmBigNumber {
         decoder as JsonDecoder
         val string = decoder.decodeJsonElement().jsonPrimitive.content
+        if (string.startsWith("0x")) {
+            return convertBase16ToBase10(string.drop(2))
+        }
         return EvmBigNumber.orThrow(string)
     }
 
@@ -32,3 +35,5 @@ public object EvmBigNumberSerializer : KSerializer<EvmBigNumber> {
         encoder.encodeJsonElement(literal)
     }
 }
+
+internal expect fun convertBase16ToBase10(string: String): EvmBigNumber
