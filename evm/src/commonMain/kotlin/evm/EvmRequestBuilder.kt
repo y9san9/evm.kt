@@ -1,6 +1,5 @@
 package evm
 
-import kotlinx.serialization.json.Json
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
@@ -18,12 +17,18 @@ public class EvmRequestBuilder<T> {
     }
 
     public class Handler<T> {
-        public var responseType: KType? = null
+        public var responseSerializableType: KType? = null
+        public var responseConverter: EvmRequest.ResponseConverter<Any?, T>? = null
 
         public fun build(): EvmRequest.Handler<T> {
-            val responseType = this.responseType
-                ?: error("Provide 'responseType' for request")
-            return EvmRequest.Handler(responseType)
+            val responseSerializableType = this.responseSerializableType
+                ?: error("Provide 'responseSerializableType' for request")
+            val responseConverter = this.responseConverter
+                ?: error("Provide 'responseConverter' for request")
+            return EvmRequest.Handler(
+                responseSerializableType = responseSerializableType,
+                responseConverter = responseConverter,
+            )
         }
     }
 
@@ -34,7 +39,6 @@ public class EvmRequestBuilder<T> {
 }
 
 public inline fun <T> buildEvmRequest(
-    json: Json,
     block: EvmRequestBuilder<T>.() -> Unit,
 ): EvmRequest<T> {
     val builder = EvmRequestBuilder<T>()
@@ -42,6 +46,17 @@ public inline fun <T> buildEvmRequest(
     return builder.build()
 }
 
+public inline fun <reified TSerializable, T> EvmRequestBuilder.Handler<T>.response(
+    converter: EvmRequest.ResponseConverter<TSerializable, T>,
+) {
+    responseSerializableType = typeOf<TSerializable>()
+    @Suppress("UNCHECKED_CAST")
+    responseConverter = converter as EvmRequest.ResponseConverter<Any?, T>
+}
+
 public inline fun <reified T> EvmRequestBuilder.Handler<T>.responseType() {
-    responseType = typeOf<T>()
+    responseSerializableType = typeOf<T>()
+    @Suppress("UNCHECKED_CAST")
+    responseConverter =
+        EvmRequest.ResponseConverter.none<T>() as EvmRequest.ResponseConverter<Any?, T>
 }

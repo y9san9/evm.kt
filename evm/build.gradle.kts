@@ -27,4 +27,5 @@ dependencies {
     commonMainImplementation(libs.ktor.client.cio)
     commonMainImplementation(libs.ktor.client.content.negotiation)
     commonMainImplementation(libs.ktor.client.serialization.json)
+    commonMainImplementation(libs.slf4j.simple)
 }

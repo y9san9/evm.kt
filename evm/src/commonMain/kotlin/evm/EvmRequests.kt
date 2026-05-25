@@ -7,14 +7,6 @@ import kotlinx.serialization.json.Json
  * to the Internet and does not perform any IO.
  */
 public class EvmRequests(private val json: Json) {
-    public fun getBlockNumber(): EvmRequest<EvmBigNumber> = buildEvmRequest {
-        method = "eth_blockNumber"
-        handler {
-            responseType<EvmBigNumber>()
-        }
-    }
-
-    private inline fun <T> buildEvmRequest(
-        block: EvmRequestBuilder<T>.() -> Unit,
-    ): EvmRequest<T> = buildEvmRequest(json, block)
+    public fun getBlockNumber(): EvmRequest<EvmNumber> =
+        EvmRequestEthGetBlockNumber.create()
 }

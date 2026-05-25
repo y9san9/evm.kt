@@ -17,7 +17,7 @@ public class EvmExecutor internal constructor(
 
     public val requests: EvmRequests = EvmRequests(json)
 
-    public suspend fun getBlockNumber(): EvmBigNumber =
+    public suspend fun getBlockNumber(): EvmNumber =
         execute(requests.getBlockNumber())
 
     public suspend fun <T> execute(requests: List<EvmRequest<T>>): List<T> =

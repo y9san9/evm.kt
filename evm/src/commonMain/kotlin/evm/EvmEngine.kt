@@ -56,13 +56,14 @@ public class EvmEngine(
                 .associateBy { response -> response.id }
             return requestIds.map { (requestId, request) ->
                 val payload = responses.getValue(requestId)
-                val type = request.handler.responseType
+                val serializableType = request.handler.responseSerializableType
 
                 @Suppress("UNCHECKED_CAST")
-                val serializer = json.serializersModule.serializer(
-                    type,
-                ) as KSerializer<T>
-                json.decodeFromJsonElement(serializer, payload.result)
+                val serializer = json.serializersModule
+                    .serializer(serializableType) as KSerializer<T>
+                val serializable = json
+                    .decodeFromJsonElement(serializer, payload.result)
+                request.handler.responseConverter.convert(serializable)
             }
         } catch (exception: IOException) {
             throw EvmIO.Exception(exception)
