@@ -8,5 +8,7 @@ import kotlinx.serialization.json.Json
  */
 public class EvmRequests(private val json: Json) {
     public fun getBlockNumber(): EvmRequest<EvmNumber> =
-        EvmRequestEthGetBlockNumber.create()
+        EvmRequestBlockNumber()
+    public fun call(call: EvmCall, block: EvmBlock): EvmRequest<EvmEncoded> =
+        EvmRequestCall(call, block)
 }

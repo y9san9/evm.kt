@@ -1,5 +1,10 @@
 package evm
 
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.json.JsonContentPolymorphicSerializer
+import kotlinx.serialization.SerialName
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -13,7 +18,6 @@ import kotlinx.io.IOException
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.serializer
 
 /**
@@ -41,29 +45,18 @@ public class EvmEngine(
         try {
             val requestIds = requests.associateBy { requestId.next() }
             val serializable = requestIds.map { (id, request) ->
-                EvmRequestPayload(
-                    id = id,
-                    method = request.method,
-                    params = request.params.map { (value, type) ->
-                        val serializer = json.serializersModule.serializer(type)
-                        json.encodeToJsonElement(serializer, value)
-                    },
-                )
+                val payload = request.encode(json)
+                EvmRequestSerializable(id, payload.method, payload.params)
             }
             val responses = httpClient
                 .post { setBody(serializable) }
-                .body<List<EvmResponsePayload>>()
-                .associateBy { response -> response.id }
+                .body<List<EvmResponseSerializable>>()
+                .associate { response ->
+                    response.id to response.toPayload()
+                }
             return requestIds.map { (requestId, request) ->
-                val payload = responses.getValue(requestId)
-                val serializableType = request.handler.responseSerializableType
-
-                @Suppress("UNCHECKED_CAST")
-                val serializer = json.serializersModule
-                    .serializer(serializableType) as KSerializer<T>
-                val serializable = json
-                    .decodeFromJsonElement(serializer, payload.result)
-                request.handler.responseConverter.convert(serializable)
+                val serializable = responses.getValue(requestId)
+                request.decode(json, serializable)
             }
         } catch (exception: IOException) {
             throw EvmIO.Exception(exception)
@@ -72,13 +65,13 @@ public class EvmEngine(
 }
 
 @Serializable
-public data class EvmRequestPayload(
+private data class EvmRequestSerializable(
     val jsonrpc: String,
     val id: Long,
     val method: String,
     val params: List<JsonElement>,
 ) {
-    public constructor(
+    constructor(
         id: Long,
         method: String,
         params: List<JsonElement>,
@@ -90,12 +83,59 @@ public data class EvmRequestPayload(
     )
 }
 
-@Serializable
-public data class EvmResponsePayload(
-    val jsonrpc: String,
-    val id: Long,
-    val result: JsonElement,
-)
+@Serializable(with = EvmResponseSerializable.Serializer::class)
+private sealed interface EvmResponseSerializable {
+    val jsonrpc: String
+    val id: Long
+
+    fun toPayload(): EvmResponsePayload
+
+    @Serializable
+    data class Success(
+        @SerialName("jsonrpc")
+        override val jsonrpc: String,
+        @SerialName("id")
+        override val id: Long,
+        @SerialName("result")
+        val result: JsonElement,
+    ) : EvmResponseSerializable {
+        override fun toPayload(): EvmResponsePayload.Success =
+            EvmResponsePayload.Success(result)
+    }
+
+    @Serializable
+    data class Failure(
+        @SerialName("jsonrpc")
+        override val jsonrpc: String,
+        @SerialName("id")
+        override val id: Long,
+        @SerialName("error")
+        val error: Error,
+    ) : EvmResponseSerializable {
+        override fun toPayload(): EvmResponsePayload.Error =
+            EvmResponsePayload.Error(
+                code = error.code,
+                message = error.message,
+            )
+    }
+
+    @Serializable
+    data class Error(
+        @SerialName("code")
+        val code: Long,
+        @SerialName("message")
+        val message: String,
+    )
+
+    object Serializer : JsonContentPolymorphicSerializer<EvmResponseSerializable>(EvmResponseSerializable::class) {
+        override fun selectDeserializer(element: JsonElement): DeserializationStrategy<EvmResponseSerializable> {
+            return when {
+                "error" in element.jsonObject -> Failure.serializer()
+                else -> Success.serializer()
+            }
+        }
+    }
+}
 
 internal expect class EvmRequestId() {
     fun next(): Long

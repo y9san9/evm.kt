@@ -20,6 +20,9 @@ public class EvmExecutor internal constructor(
     public suspend fun getBlockNumber(): EvmNumber =
         execute(requests.getBlockNumber())
 
+    public suspend fun call(call: EvmCall, block: EvmBlock): EvmEncoded =
+        execute(requests.call(call, block))
+
     public suspend fun <T> execute(requests: List<EvmRequest<T>>): List<T> =
         engine.execute(requests)
 
