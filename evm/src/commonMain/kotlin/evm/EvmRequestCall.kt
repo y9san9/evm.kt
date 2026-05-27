@@ -8,7 +8,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
 public class EvmRequestCall(
     private val call: EvmCall,
     private val block: EvmBlock,
-) : EvmRequest<EvmEncoded> {
+) : EvmRequest<EvmHex> {
     override fun encode(json: Json): EvmRequestPayload {
         return EvmRequestPayload(
             method = "eth_call",
@@ -19,7 +19,15 @@ public class EvmRequestCall(
         )
     }
 
-    override fun decode(json: Json, payload: EvmResponsePayload): EvmEncoded {
-        TODO()
+    // todo: what to do with insufficient balance
+    override fun decode(json: Json, payload: EvmResponsePayload): EvmHex {
+        return when (payload) {
+            is Success -> {
+                val serializable: EvmHexSerializable =
+                    json.decodeFromJsonElement(payload.result)
+                serializable.typed()
+            }
+            is EvmResponsePayload.Error -> payload.bang()
+        }
     }
 }

@@ -1,6 +1,13 @@
+@file:JvmName("JvmEvmNumberKt")
+
 package evm
 
 import java.math.RoundingMode
+
+public actual fun EvmNumber(hex: EvmHex): EvmNumber {
+    val integer = java.math.BigInteger(1, hex.unsafeBytes)
+    return EvmNumber(java.math.BigDecimal(integer))
+}
 
 public actual class EvmNumber(private val underlying: java.math.BigDecimal) :
     Comparable<EvmNumber> {
@@ -65,22 +72,21 @@ public actual class EvmNumber(private val underlying: java.math.BigDecimal) :
 
     actual override fun toString(): String = underlying.toString()
 
-    public actual fun toHexString(): String {
+    public actual fun hex(): EvmHex {
         if (underlying.scale() > 0) {
             error(
                 "Hex strings for decimal values are not supported at the moment",
             )
         }
-        return "0x" + underlying.toBigInteger().toString(16)
+        val string = underlying.toBigInteger().toString(16)
+        val paddedString = if (string.length % 2 == 1) "0$string" else string
+        return EvmHex.orThrow("0x$paddedString")
     }
 
     public actual fun toPlainString(): String = underlying.toPlainString()
 
     public actual fun serializable(): EvmNumberSerializable =
         EvmNumberSerializable(toString())
-
-    public actual fun hexSerializable(): EvmHexSerializable =
-        EvmHexSerializable(toHexString())
 
     public actual companion object {
         public actual val Zero: EvmNumber
@@ -95,11 +101,6 @@ public actual class EvmNumber(private val underlying: java.math.BigDecimal) :
         public actual fun orThrow(string: String): EvmNumber {
             val underlying = java.math.BigDecimal(string)
             return EvmNumber(underlying)
-        }
-
-        public actual fun fromHexOrThrow(string: String): EvmNumber {
-            val integer = java.math.BigInteger(string.drop(2), 16)
-            return EvmNumber.orThrow(integer.toString())
         }
     }
 }

@@ -2,16 +2,16 @@ package evm
 
 import kotlinx.serialization.Serializable
 
-public data class EvmSignature(val number: EvmNumber) {
+public data class EvmSignature(val hex: EvmHex) {
     public fun serializable(): EvmSignatureSerializable {
-        return EvmSignatureSerializable(string = number.toHexString())
+        return EvmSignatureSerializable(hex = hex.serializable())
     }
 }
 
 @Serializable
 @JvmInline
-public value class EvmSignatureSerializable(public val string: String) {
+public value class EvmSignatureSerializable(public val hex: EvmHexSerializable) {
     public fun typed(): EvmSignature {
-        return EvmSignature(number = EvmNumber.fromHexOrThrow(string))
+        return EvmSignature(hex = hex.typed())
     }
 }

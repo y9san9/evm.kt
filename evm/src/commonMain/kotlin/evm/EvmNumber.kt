@@ -2,6 +2,8 @@ package evm
 
 import kotlinx.serialization.Serializable
 
+public expect fun EvmNumber(hex: EvmHex): EvmNumber
+
 public expect class EvmNumber : Comparable<EvmNumber> {
     public constructor(int: Int)
     public constructor(long: Long)
@@ -30,12 +32,11 @@ public expect class EvmNumber : Comparable<EvmNumber> {
     override fun compareTo(other: EvmNumber): Int
 
     override fun toString(): String
-    public fun toHexString(): String
+    public fun hex(): EvmHex
 
     public fun toPlainString(): String
 
     public fun serializable(): EvmNumberSerializable
-    public fun hexSerializable(): EvmHexSerializable
 
     public companion object {
         public val Zero: EvmNumber
@@ -43,7 +44,6 @@ public expect class EvmNumber : Comparable<EvmNumber> {
         public val Ten: EvmNumber
 
         public fun orThrow(string: String): EvmNumber
-        public fun fromHexOrThrow(string: String): EvmNumber
     }
 }
 
@@ -85,16 +85,6 @@ public fun EvmNumber.divOrThrow(long: Long, scale: Int): EvmNumber =
 
 public fun EvmNumber.remOrThrow(long: Long): EvmNumber =
     this.remOrThrow(EvmNumber(long))
-
-@Serializable
-@JvmInline
-public value class EvmHexSerializable(public val string: String) {
-    init {
-        EvmNumber.fromHexOrThrow(string)
-    }
-
-    public fun typed(): EvmNumber = EvmNumber.fromHexOrThrow(string)
-}
 
 @Serializable
 @JvmInline

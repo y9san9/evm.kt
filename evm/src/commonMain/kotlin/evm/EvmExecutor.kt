@@ -17,10 +17,10 @@ public class EvmExecutor internal constructor(
 
     public val requests: EvmRequests = EvmRequests(json)
 
-    public suspend fun getBlockNumber(): EvmNumber =
+    public suspend fun getBlockNumber(): EvmHex =
         execute(requests.getBlockNumber())
 
-    public suspend fun call(call: EvmCall, block: EvmBlock): EvmEncoded =
+    public suspend fun call(call: EvmCall, block: EvmBlock): EvmHex =
         execute(requests.call(call, block))
 
     public suspend fun <T> execute(requests: List<EvmRequest<T>>): List<T> =

@@ -25,9 +25,9 @@ public sealed interface EvmBlock {
         override fun serializable(): EvmBlockSerializable =
             EvmBlockSerializable(string = "finalized")
     }
-    public data class Exact(val number: EvmNumber) : EvmBlock {
+    public data class Exact(val hex: EvmHex) : EvmBlock {
         override fun serializable(): EvmBlockSerializable =
-            EvmBlockSerializable(string = number.toHexString())
+            EvmBlockSerializable(string = hex.stringWithPrefix)
     }
 }
 
@@ -41,7 +41,7 @@ public value class EvmBlockSerializable(public val string: String) {
             "pending" -> Pending
             "safe" -> Safe
             "finalized"-> Finalized
-            else -> EvmBlock.Exact(EvmNumber.fromHexOrThrow(string))
+            else -> EvmBlock.Exact(EvmHex.orThrow(string))
         }
     }
 }

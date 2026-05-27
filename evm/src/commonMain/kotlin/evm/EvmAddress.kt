@@ -5,18 +5,16 @@ import kotlinx.serialization.Serializable
 /**
  * Wallet or smart-contract address
  */
-public data class EvmAddress(val number: EvmNumber) {
+public data class EvmAddress(val hex: EvmHex) {
     public fun serializable(): EvmAddressSerializable {
-        return EvmAddressSerializable(number.toHexString())
+        return EvmAddressSerializable(hex.serializable())
     }
 }
 
 @Serializable
 @JvmInline
-public value class EvmAddressSerializable(public val string: String) {
+public value class EvmAddressSerializable(public val hex: EvmHexSerializable) {
     public fun typed(): EvmAddress {
-        return EvmAddress(
-            number = EvmNumber.fromHexOrThrow(string),
-        )
+        return EvmAddress(hex.typed())
     }
 }

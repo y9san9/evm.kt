@@ -10,17 +10,17 @@ public data class EvmCall(
     val maxPriorityFeeGas: EvmNumber? = null,
     val maxFeePerGas: EvmNumber? = null,
     val value: EvmNumber? = null,
-    val data: EvmEncoded? = null,
+    val data: EvmHex? = null,
 ) {
     public fun serializable(): EvmCallSerializable {
         return EvmCallSerializable(
             from = from?.serializable(),
             to = to?.serializable(),
             gas = gas?.serializable(),
-            gasPrice = gasPrice?.hexSerializable(),
-            maxPriorityFeeGas = maxPriorityFeeGas?.hexSerializable(),
-            maxFeePerGas = maxFeePerGas?.hexSerializable(),
-            value = value?.hexSerializable(),
+            gasPrice = gasPrice?.hex()?.serializable(),
+            maxPriorityFeeGas = maxPriorityFeeGas?.hex()?.serializable(),
+            maxFeePerGas = maxFeePerGas?.hex()?.serializable(),
+            value = value?.hex()?.serializable(),
             data = data?.serializable(),
         )
     }
@@ -35,17 +35,17 @@ public data class EvmCallSerializable(
     val maxPriorityFeeGas: EvmHexSerializable? = null,
     val maxFeePerGas: EvmHexSerializable? = null,
     val value: EvmHexSerializable? = null,
-    val data: EvmEncodedSerializable? = null,
+    val data: EvmHexSerializable? = null,
 ) {
     public fun typed(): EvmCall {
         return EvmCall(
             from = from?.typed(),
             to = to?.typed(),
             gas = gas?.typed(),
-            gasPrice = gasPrice?.typed(),
-            maxPriorityFeeGas = maxPriorityFeeGas?.typed(),
-            maxFeePerGas = maxFeePerGas?.typed(),
-            value = value?.typed(),
+            gasPrice = gasPrice?.typed()?.number(),
+            maxPriorityFeeGas = maxPriorityFeeGas?.typed()?.number(),
+            maxFeePerGas = maxFeePerGas?.typed()?.number(),
+            value = value?.typed()?.number(),
             data = data?.typed(),
         )
     }

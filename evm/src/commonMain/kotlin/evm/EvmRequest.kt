@@ -27,9 +27,18 @@ public sealed interface EvmResponsePayload {
     public data class Error(
         val code: Long,
         val message: String
-    ) : EvmResponsePayload
+    ) : EvmResponsePayload {
+        public fun bang(): Nothing {
+            throw Exception(code, message)
+        }
+    }
 
     public data class Success(
         val result: JsonElement,
     ) : EvmResponsePayload
+
+    public class Exception(
+        public val code: Long,
+        override val message: String,
+    ) : RuntimeException("EvmRequest.Error(code=$code,message=$message)")
 }
