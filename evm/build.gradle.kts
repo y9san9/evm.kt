@@ -16,6 +16,7 @@ kotlin {
             "-Xexpect-actual-classes",
             "-Xnested-type-aliases",
         )
+        optIn.add("kotlin.ExperimentalUnsignedTypes")
     }
 
     jvm()

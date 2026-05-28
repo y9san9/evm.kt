@@ -27,21 +27,19 @@ public sealed interface EvmBlock {
     }
     public data class Exact(val hex: EvmHex) : EvmBlock {
         override fun serializable(): EvmBlockSerializable =
-            EvmBlockSerializable(string = hex.stringWithPrefix)
+            EvmBlockSerializable(string = hex.serializable().string)
     }
 }
 
 @Serializable
 @JvmInline
 public value class EvmBlockSerializable(public val string: String) {
-    public fun typed(): EvmBlock {
-        return when (string) {
-            "latest" -> Latest
-            "earlier" -> Earlier
-            "pending" -> Pending
-            "safe" -> Safe
-            "finalized"-> Finalized
-            else -> EvmBlock.Exact(EvmHex.orThrow(string))
-        }
+    public fun typed(): EvmBlock = when (string) {
+        "latest" -> Latest
+        "earlier" -> Earlier
+        "pending" -> Pending
+        "safe" -> Safe
+        "finalized" -> Finalized
+        else -> EvmBlock.Exact(EvmHexSerializable(string).typed())
     }
 }

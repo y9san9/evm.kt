@@ -1,6 +1,5 @@
 package evm
 
-import kotlin.reflect.KType
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 
@@ -24,18 +23,12 @@ public data class EvmRequestPayload(
 )
 
 public sealed interface EvmResponsePayload {
-    public data class Error(
-        val code: Long,
-        val message: String
-    ) : EvmResponsePayload {
-        public fun bang(): Nothing {
-            throw Exception(code, message)
-        }
+    public data class Error(val code: Long, val message: String) :
+        EvmResponsePayload {
+        public fun bang(): Nothing = throw Exception(code, message)
     }
 
-    public data class Success(
-        val result: JsonElement,
-    ) : EvmResponsePayload
+    public data class Success(val result: JsonElement) : EvmResponsePayload
 
     public class Exception(
         public val code: Long,

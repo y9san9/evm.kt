@@ -1,10 +1,5 @@
 package evm
 
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.DeserializationStrategy
-import kotlinx.serialization.json.JsonContentPolymorphicSerializer
-import kotlinx.serialization.SerialName
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -15,9 +10,13 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.io.IOException
-import kotlinx.serialization.KSerializer
+import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonContentPolymorphicSerializer
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.serializer
 
 /**
@@ -127,12 +126,14 @@ private sealed interface EvmResponseSerializable {
         val message: String,
     )
 
-    object Serializer : JsonContentPolymorphicSerializer<EvmResponseSerializable>(EvmResponseSerializable::class) {
-        override fun selectDeserializer(element: JsonElement): DeserializationStrategy<EvmResponseSerializable> {
-            return when {
-                "error" in element.jsonObject -> Failure.serializer()
-                else -> Success.serializer()
-            }
+    object Serializer : JsonContentPolymorphicSerializer<EvmResponseSerializable>(
+        EvmResponseSerializable::class,
+    ) {
+        override fun selectDeserializer(
+            element: JsonElement,
+        ): DeserializationStrategy<EvmResponseSerializable> = when {
+            "error" in element.jsonObject -> Failure.serializer()
+            else -> Success.serializer()
         }
     }
 }
