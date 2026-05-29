@@ -10,7 +10,7 @@ public data class EvmCall(
     val maxPriorityFeeGas: EvmInteger? = null,
     val maxFeePerGas: EvmInteger? = null,
     val value: EvmInteger? = null,
-    val data: EvmHex? = null,
+    val data: EvmCallData? = null,
 ) {
     public fun serializable(): EvmCallSerializable = EvmCallSerializable(
         from = from?.serializable(),
@@ -33,7 +33,7 @@ public data class EvmCallSerializable(
     val maxPriorityFeeGas: EvmIntegerSerializable? = null,
     val maxFeePerGas: EvmIntegerSerializable? = null,
     val value: EvmIntegerSerializable? = null,
-    val data: EvmHexSerializable? = null,
+    val data: EvmCallDataSerializable? = null,
 ) {
     public fun typed(): EvmCall = EvmCall(
         from = from?.typed(),
@@ -45,4 +45,38 @@ public data class EvmCallSerializable(
         value = value?.typed(),
         data = data?.typed(),
     )
+}
+
+public data class EvmCallData(val hex: EvmHex) {
+    public fun serializable(): EvmCallDataSerializable {
+        return EvmCallDataSerializable(hex.serializable())
+    }
+
+    public companion object {
+        public fun orThrow(string: String): EvmCallData {
+            return EvmCallData(EvmHex.orThrow(string))
+        }
+    }
+}
+
+@Serializable
+@JvmInline
+public value class EvmCallDataSerializable(public val hex: EvmHexSerializable) {
+    public fun typed(): EvmCallData {
+        return EvmCallData(hex.typed())
+    }
+}
+
+public data class EvmCallResult(val hex: EvmHex) {
+    public fun serializable(): EvmCallResultSerializable =
+        EvmCallResultSerializable(hex.serializable())
+}
+
+@Serializable
+@JvmInline
+public value class EvmCallResultSerializable(
+    public val hex: EvmHexSerializable,
+) {
+    public fun typed(): EvmCallResult =
+        EvmCallResult(hex.typed())
 }

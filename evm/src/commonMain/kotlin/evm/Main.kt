@@ -15,11 +15,16 @@ public suspend fun main() {
 private suspend fun main(executor: EvmExecutor) {
     val contract =
         EvmAddress.orThrow("0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14")
-    val data = EvmHex.orThrow("0x70a08231")
+    val data = EvmAbi.encodeCallData(
+        signature = EvmAbi.signature("balanceOf(address)"),
+        parameters = listOf(EvmAbi.Parameter.Address(contract)),
+    )
+    // EvmCallData.orThrow("0x70a08231")
+    println(data)
     val call = EvmCall(
         to = contract,
         data = data,
     )
     val result = executor.call(call, Latest)
-    println(result)
+    println(EvmAbi.decodeCallResult(result, EvmAbi.Descriptor.UInt256))
 }

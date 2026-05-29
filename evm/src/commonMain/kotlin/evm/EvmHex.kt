@@ -2,15 +2,29 @@ package evm
 
 import kotlinx.serialization.Serializable
 
+public inline fun EvmHex(size: Int, init: (index: Int) -> Byte): EvmHex {
+    return EvmHex.unsafe(ByteArray(size) { i -> init(i) })
+}
+
 /**
  * This class has immutability contract. Bytes should not be mutated. Use
  * [EvmHex].
+ *
+ * TODO: Add `from: Int, to: Int`, so it is possible to make slices
  */
 public class EvmHex private constructor(public val unsafeBytes: ByteArray) {
+    public val size: Int get() = unsafeBytes.size
+
     public fun serializable(): EvmHexSerializable {
         val string = "0x${unsafeBytes.toHexString()}"
         return EvmHexSerializable(string)
     }
+
+    public fun toIntegerBigEndian(): EvmInteger {
+        return EvmInteger.fromHexUnsignedBigEndian(hex = this)
+    }
+
+    public operator fun get(index: Int): Byte = unsafeBytes[index]
 
     public fun copyOfBytes(): ByteArray = unsafeBytes.copyOf()
 
@@ -35,6 +49,10 @@ public class EvmHex private constructor(public val unsafeBytes: ByteArray) {
             require(string.startsWith("0x"))
             val bytes = string.drop(2).hexToByteArray()
             return unsafe(bytes)
+        }
+
+        public fun encode(string: String): EvmHex {
+            return EvmHex(string.encodeToByteArray())
         }
     }
 }

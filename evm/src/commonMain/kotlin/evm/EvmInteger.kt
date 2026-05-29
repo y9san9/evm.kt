@@ -15,6 +15,8 @@ public expect class EvmInteger : Comparable<EvmInteger> {
     public fun divOrThrow(number: EvmInteger): EvmInteger
     public fun remOrThrow(number: EvmInteger): EvmInteger
 
+    public fun pow(int: Int): EvmInteger
+
     public fun serializable(): EvmIntegerSerializable
 
     override fun equals(other: Any?): Boolean
@@ -32,6 +34,9 @@ public expect class EvmInteger : Comparable<EvmInteger> {
 
         public fun orThrow(string: String): EvmInteger
         public fun fromHexStringOrThrow(string: String): EvmInteger
+        public fun fromHexUnsignedBigEndian(hex: EvmHex): EvmInteger
+
+        public fun maxValueUnsigned(sizeBytes: Int): EvmInteger
     }
 }
 
@@ -41,8 +46,8 @@ public value class EvmIntegerSerializable(public val string: String) {
     public fun typed(): EvmInteger = EvmInteger.fromHexStringOrThrow(string)
 }
 
-public val Int.bigNumber: EvmInteger
+public val Int.evmInteger: EvmInteger
     get() = EvmInteger(int = this)
 
-public val Long.bigNumber: EvmInteger
+public val Long.evmInteger: EvmInteger
     get() = EvmInteger(long = this)

@@ -39,6 +39,11 @@ public actual class EvmInteger(private val underlying: java.math.BigInteger) :
         return EvmInteger(underlying[1])
     }
 
+    public actual fun pow(int: Int): EvmInteger {
+        val underlying = this.underlying.pow(int)
+        return EvmInteger(underlying)
+    }
+
     public actual fun serializable(): EvmIntegerSerializable =
         EvmIntegerSerializable(toHexString())
 
@@ -78,6 +83,14 @@ public actual class EvmInteger(private val underlying: java.math.BigInteger) :
         public actual fun fromHexStringOrThrow(string: String): EvmInteger {
             require(string.startsWith("0x"))
             return EvmInteger(java.math.BigInteger(string.drop(2), 16))
+        }
+
+        public actual fun fromHexUnsignedBigEndian(hex: EvmHex): EvmInteger {
+            return EvmInteger(java.math.BigInteger(1, hex.unsafeBytes))
+        }
+
+        public actual fun maxValueUnsigned(sizeBytes: Int): EvmInteger {
+            return EvmInteger(2).pow(sizeBytes * 8) - 1.evmInteger
         }
     }
 }

@@ -20,7 +20,7 @@ public class EvmExecutor internal constructor(
     public suspend fun getBlockNumber(): EvmHex =
         execute(requests.getBlockNumber())
 
-    public suspend fun call(call: EvmCall, block: EvmBlock): EvmHex =
+    public suspend fun call(call: EvmCall, block: EvmBlock): EvmCallResult =
         execute(requests.call(call, block))
 
     public suspend fun <T> execute(requests: List<EvmRequest<T>>): List<T> =
