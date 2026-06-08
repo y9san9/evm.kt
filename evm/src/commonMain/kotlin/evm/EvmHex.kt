@@ -2,9 +2,12 @@ package evm
 
 import kotlinx.serialization.Serializable
 
-public inline fun EvmHex(size: Int, init: (index: Int) -> Byte): EvmHex {
-    return EvmHex.unsafe(ByteArray(size) { i -> init(i) })
-}
+public inline fun EvmHex(size: Int, init: (index: Int) -> Byte): EvmHex =
+    EvmHex.unsafe(
+        ByteArray(size) { i ->
+            init(i)
+        },
+    )
 
 /**
  * This class has immutability contract. Bytes should not be mutated. Use
@@ -20,9 +23,8 @@ public class EvmHex private constructor(public val unsafeBytes: ByteArray) {
         return EvmHexSerializable(string)
     }
 
-    public fun toIntegerBigEndian(): EvmInteger {
-        return EvmInteger.fromHexUnsignedBigEndian(hex = this)
-    }
+    public fun toIntegerBigEndian(): EvmInteger =
+        EvmInteger.fromHexUnsignedBigEndian(hex = this)
 
     public operator fun get(index: Int): Byte = unsafeBytes[index]
 
@@ -51,9 +53,8 @@ public class EvmHex private constructor(public val unsafeBytes: ByteArray) {
             return unsafe(bytes)
         }
 
-        public fun encode(string: String): EvmHex {
-            return EvmHex(string.encodeToByteArray())
-        }
+        public fun encode(string: String): EvmHex =
+            EvmHex(string.encodeToByteArray())
     }
 }
 

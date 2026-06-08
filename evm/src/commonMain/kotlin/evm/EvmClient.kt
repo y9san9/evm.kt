@@ -19,24 +19,29 @@ public class EvmClient(
     private val httpClient: HttpClient,
     private val json: Json,
 ) {
-    /**
-     * Pefer using [io] whenever possible
-     */
-    public val unsafe: EvmExecutor = EvmExecutor(endpoint, httpClient, json)
+    private val engine = EvmEngine(endpoint, json, httpClient)
 
-    /**
-     * An explicit way to create IO gateway.
-     *
-     * Example:
-     *
-     * val client = EvmClient(...)
-     * val result = client.use { executor ->
-     *     executor.getBalance()
-     * }
-     */
-    public inline fun <T> use(block: (EvmExecutor) -> T): EvmIO<T> = try {
-        EvmIO.Success(block(unsafe))
-    } catch (exception: EvmIO.Exception) {
-        EvmIO.Error(EvmIO.Exception(exception))
+    public val requests: EvmRequests = EvmRequests(json)
+
+    public suspend fun getBlockNumber(): EvmIO<EvmHex> =
+        execute(requests.getBlockNumber())
+
+    public suspend fun call(
+        call: EvmCall,
+        block: EvmBlock,
+    ): EvmIO<EvmCallResult> = execute(requests.call(call, block))
+
+    public suspend fun <T> execute(
+        requests: List<EvmRequest<T>>,
+    ): EvmIO<List<T>> = engine.execute(requests)
+
+    public suspend fun <T> execute(
+        vararg requests: EvmRequest<T>,
+    ): EvmIO<List<T>> = execute(requests.toList())
+
+    public suspend fun <T> execute(request: EvmRequest<T>): EvmIO<T> {
+        val (response) = execute(listOf(request)).or { return it }
+        @Suppress("UNCHECKED_CAST")
+        return EvmIO.Success(response as T)
     }
 }

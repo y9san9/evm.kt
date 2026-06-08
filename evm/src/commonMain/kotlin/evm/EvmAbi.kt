@@ -19,8 +19,8 @@ public object EvmAbi {
         return EvmCallData(EvmHex.unsafe(bytes))
     }
 
-    public fun encodeSignature(signature: Signature): EvmHex {
-        return when (signature) {
+    public fun encodeSignature(signature: Signature): EvmHex =
+        when (signature) {
             is Signature.String -> {
                 val hex = EvmHex.unsafe(signature.string.encodeToByteArray())
                 val keccak = EvmKeccak256.digest(hex)
@@ -29,13 +29,11 @@ public object EvmAbi {
             }
             is Signature.Hex -> signature.hex
         }
-    }
 
-    public fun encodeParameter(parameter: Parameter): EvmHex {
-        return when (parameter) {
+    public fun encodeParameter(parameter: Parameter): EvmHex =
+        when (parameter) {
             is Parameter.Address -> encodeParameter(parameter)
         }
-    }
 
     public fun encodeParameter(parameter: Parameter.Address): EvmHex {
         val padSize = PARAMETER_SIZE_BYTES - ADDRESS_SIZE_BYTES
@@ -53,7 +51,7 @@ public object EvmAbi {
         descriptor: Descriptor<T>,
     ): T {
         @Suppress("UNCHECKED_CAST")
-        return when(descriptor) {
+        return when (descriptor) {
             is Descriptor.UInt -> decodeCallResult(result, descriptor)
         } as T
     }
@@ -67,9 +65,8 @@ public object EvmAbi {
         return integer
     }
 
-    public fun signature(string: String): Signature.String {
-        return Signature.String(string)
-    }
+    public fun signature(string: String): Signature.String =
+        Signature.String(string)
 
     public sealed interface Signature {
         public data class String(val string: kotlin.String) : Signature

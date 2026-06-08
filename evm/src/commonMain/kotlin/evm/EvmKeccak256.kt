@@ -109,8 +109,9 @@ public object EvmKeccak256 {
     // XOR two markers into the state to close the final, potentially partial block.
     // This unambiguously signals where the message ends inside the rate window.
     private fun pad(state: ByteArray, endOfInputPosition: Int) {
+        val endByte = state[endOfInputPosition].toInt()
         state[endOfInputPosition] =
-            (state[endOfInputPosition].toInt() xor KECCAK_DOMAIN_SEPARATOR).toByte()
+            (endByte xor KECCAK_DOMAIN_SEPARATOR).toByte()
         state[RATE_BYTES - 1] =
             (state[RATE_BYTES - 1].toInt() xor END_OF_PADDING).toByte()
     }

@@ -9,9 +9,9 @@ public sealed interface EvmBlock {
         override fun serializable(): EvmBlockSerializable =
             EvmBlockSerializable(string = "latest")
     }
-    public data object Earlier : EvmBlock {
+    public data object Earliest : EvmBlock {
         override fun serializable(): EvmBlockSerializable =
-            EvmBlockSerializable(string = "earlier")
+            EvmBlockSerializable(string = "earliest")
     }
     public data object Pending : EvmBlock {
         override fun serializable(): EvmBlockSerializable =
@@ -36,7 +36,7 @@ public sealed interface EvmBlock {
 public value class EvmBlockSerializable(public val string: String) {
     public fun typed(): EvmBlock = when (string) {
         "latest" -> Latest
-        "earlier" -> Earlier
+        "earliest" -> Earliest
         "pending" -> Pending
         "safe" -> Safe
         "finalized" -> Finalized
