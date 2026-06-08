@@ -40,7 +40,9 @@ public class EvmEngine(
 
     private val requestId = EvmRequestId()
 
-    public suspend fun <T> execute(requests: List<EvmRequest<T>>): List<T> {
+    public suspend fun <T> execute(
+        requests: List<EvmRequest<T>>,
+    ): EvmIO<List<T>> {
         try {
             val requestIds = requests.associateBy { requestId.next() }
             val serializable = requestIds.map { (id, request) ->
@@ -53,12 +55,13 @@ public class EvmEngine(
                 .associate { response ->
                     response.id to response.toPayload()
                 }
-            return requestIds.map { (requestId, request) ->
+            val result = requestIds.map { (requestId, request) ->
                 val serializable = responses.getValue(requestId)
                 request.decode(json, serializable)
             }
+            return EvmIO.Success(result)
         } catch (exception: IOException) {
-            throw EvmIO.Exception(exception)
+            return EvmIO.Failure(exception)
         }
     }
 }
@@ -126,6 +129,7 @@ private sealed interface EvmResponseSerializable {
         val message: String,
     )
 
+    @Suppress("ktlint:standard:max-line-length")
     object Serializer : JsonContentPolymorphicSerializer<EvmResponseSerializable>(
         EvmResponseSerializable::class,
     ) {

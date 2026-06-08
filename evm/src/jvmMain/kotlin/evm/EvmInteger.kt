@@ -85,12 +85,10 @@ public actual class EvmInteger(private val underlying: java.math.BigInteger) :
             return EvmInteger(java.math.BigInteger(string.drop(2), 16))
         }
 
-        public actual fun fromHexUnsignedBigEndian(hex: EvmHex): EvmInteger {
-            return EvmInteger(java.math.BigInteger(1, hex.unsafeBytes))
-        }
+        public actual fun fromHexUnsignedBigEndian(hex: EvmHex): EvmInteger =
+            EvmInteger(java.math.BigInteger(1, hex.unsafeBytes))
 
-        public actual fun maxValueUnsigned(sizeBytes: Int): EvmInteger {
-            return EvmInteger(2).pow(sizeBytes * 8) - 1.evmInteger
-        }
+        public actual fun maxValueUnsigned(sizeBytes: Int): EvmInteger =
+            EvmInteger(2).pow(sizeBytes * 8) - 1.evmInteger
     }
 }

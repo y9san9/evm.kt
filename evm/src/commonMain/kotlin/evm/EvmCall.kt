@@ -48,23 +48,19 @@ public data class EvmCallSerializable(
 }
 
 public data class EvmCallData(val hex: EvmHex) {
-    public fun serializable(): EvmCallDataSerializable {
-        return EvmCallDataSerializable(hex.serializable())
-    }
+    public fun serializable(): EvmCallDataSerializable =
+        EvmCallDataSerializable(hex.serializable())
 
     public companion object {
-        public fun orThrow(string: String): EvmCallData {
-            return EvmCallData(EvmHex.orThrow(string))
-        }
+        public fun orThrow(string: String): EvmCallData =
+            EvmCallData(EvmHex.orThrow(string))
     }
 }
 
 @Serializable
 @JvmInline
 public value class EvmCallDataSerializable(public val hex: EvmHexSerializable) {
-    public fun typed(): EvmCallData {
-        return EvmCallData(hex.typed())
-    }
+    public fun typed(): EvmCallData = EvmCallData(hex.typed())
 }
 
 public data class EvmCallResult(val hex: EvmHex) {
@@ -77,6 +73,5 @@ public data class EvmCallResult(val hex: EvmHex) {
 public value class EvmCallResultSerializable(
     public val hex: EvmHexSerializable,
 ) {
-    public fun typed(): EvmCallResult =
-        EvmCallResult(hex.typed())
+    public fun typed(): EvmCallResult = EvmCallResult(hex.typed())
 }

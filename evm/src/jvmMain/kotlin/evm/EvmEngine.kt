@@ -1,3 +1,5 @@
+@file:Suppress("ktlint:standard:filename")
+
 package evm
 
 import java.util.concurrent.atomic.AtomicLong
