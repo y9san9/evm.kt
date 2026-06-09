@@ -42,7 +42,7 @@ public class EvmEngine(
 
     public suspend fun <T> execute(
         requests: List<EvmRequest<T>>,
-    ): EvmIO<List<T>> {
+    ): EvmTry<List<T>> {
         try {
             val requestIds = requests.associateBy { requestId.next() }
             val serializable = requestIds.map { (id, request) ->
@@ -59,9 +59,9 @@ public class EvmEngine(
                 val serializable = responses.getValue(requestId)
                 request.decode(json, serializable)
             }
-            return EvmIO.Success(result)
-        } catch (exception: IOException) {
-            return EvmIO.Failure(exception)
+            return EvmTry.Ok(result)
+        } catch (exception: Exception) {
+            return EvmTry.Fail(exception)
         }
     }
 }

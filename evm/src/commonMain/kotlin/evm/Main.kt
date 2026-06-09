@@ -12,7 +12,7 @@ public suspend fun main() {
 }
 
 // https://sepolia.etherscan.io/address/0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14
-private suspend fun main(executor: EvmClient): EvmIOUnit {
+private suspend fun main(executor: EvmClient): EvmTry<Unit> {
     val contract =
         EvmAddress.orThrow("0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14")
     val data = EvmAbi.encodeCallData(
@@ -25,7 +25,9 @@ private suspend fun main(executor: EvmClient): EvmIOUnit {
         to = contract,
         data = data,
     )
-    val result = executor.call(call, Latest).or { return it }
+    val result = executor.call(call, Latest).or {
+        return EvmTry.Fail(it)
+    }
     println(EvmAbi.decodeCallResult(result, EvmAbi.Descriptor.UInt256))
-    return EvmIO.unit
+    return EvmTry.Ok(Unit)
 }

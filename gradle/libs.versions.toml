@@ -1,5 +1,5 @@
 [versions]
-evm = "0.1.1"
+evm = "0.1.2"
 kotlin = "2.2.10"
 ktor = "3.0.3"
 slf4j = "2.0.17"

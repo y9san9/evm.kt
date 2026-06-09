@@ -23,25 +23,27 @@ public class EvmClient(
 
     public val requests: EvmRequests = EvmRequests(json)
 
-    public suspend fun getBlockNumber(): EvmIO<EvmHex> =
+    public suspend fun getBlockNumber(): EvmTry<EvmHex> =
         execute(requests.getBlockNumber())
 
     public suspend fun call(
         call: EvmCall,
         block: EvmBlock,
-    ): EvmIO<EvmCallResult> = execute(requests.call(call, block))
+    ): EvmTry<EvmCallResult> = execute(requests.call(call, block))
 
     public suspend fun <T> execute(
         requests: List<EvmRequest<T>>,
-    ): EvmIO<List<T>> = engine.execute(requests)
+    ): EvmTry<List<T>> = engine.execute(requests)
 
     public suspend fun <T> execute(
         vararg requests: EvmRequest<T>,
-    ): EvmIO<List<T>> = execute(requests.toList())
+    ): EvmTry<List<T>> = execute(requests.toList())
 
-    public suspend fun <T> execute(request: EvmRequest<T>): EvmIO<T> {
-        val (response) = execute(listOf(request)).or { return it }
+    public suspend fun <T> execute(request: EvmRequest<T>): EvmTry<T> {
+        val (response) = execute(listOf(request)).or {
+            return EvmTry.Fail(it)
+        }
         @Suppress("UNCHECKED_CAST")
-        return EvmIO.Success(response as T)
+        return EvmTry.Ok(response as T)
     }
 }
