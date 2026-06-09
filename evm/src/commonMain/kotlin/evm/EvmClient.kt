@@ -19,31 +19,17 @@ public class EvmClient(
     private val httpClient: HttpClient,
     private val json: Json,
 ) {
-    private val engine = EvmEngine(endpoint, json, httpClient)
+    /**
+     * Unsafe EvmExecutor that throws EvmIO.Exception on method calls. Use [io]
+     * when possible.
+     */
+    public val unsafe: EvmExecutor = EvmExecutor(endpoint, httpClient, json)
 
-    public val requests: EvmRequests = EvmRequests(json)
-
-    public suspend fun getBlockNumber(): EvmTry<EvmHex> =
-        execute(requests.getBlockNumber())
-
-    public suspend fun call(
-        call: EvmCall,
-        block: EvmBlock,
-    ): EvmTry<EvmCallResult> = execute(requests.call(call, block))
-
-    public suspend fun <T> execute(
-        requests: List<EvmRequest<T>>,
-    ): EvmTry<List<T>> = engine.execute(requests)
-
-    public suspend fun <T> execute(
-        vararg requests: EvmRequest<T>,
-    ): EvmTry<List<T>> = execute(requests.toList())
-
-    public suspend fun <T> execute(request: EvmRequest<T>): EvmTry<T> {
-        val (response) = execute(listOf(request)).or {
-            return EvmTry.Fail(it)
+    public inline fun <T> io(block: (EvmExecutor) -> T): EvmIO<T> {
+        return try {
+            EvmIO.Ok(block(unsafe))
+        } catch (exception: EvmIO.Exception) {
+            EvmIO.Fail(exception)
         }
-        @Suppress("UNCHECKED_CAST")
-        return EvmTry.Ok(response as T)
     }
 }
