@@ -10,8 +10,7 @@ public inline fun EvmHex(size: Int, init: (index: Int) -> Byte): EvmHex =
     )
 
 /**
- * This class has immutability contract. Bytes should not be mutated. Use
- * [EvmHex].
+ * This class has immutability contract. Bytes should not be mutated.
  *
  * TODO: Add `from: Int, to: Int`, so it is possible to make slices
  */

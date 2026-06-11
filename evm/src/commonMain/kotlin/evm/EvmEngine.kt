@@ -9,7 +9,6 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.io.IOException
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -40,9 +39,7 @@ public class EvmEngine(
 
     private val requestId = EvmRequestId()
 
-    public suspend fun <T> execute(
-        requests: List<EvmRequest<T>>,
-    ): List<T> {
+    public suspend fun <T> execute(requests: List<EvmRequest<T>>): List<T> {
         try {
             val requestIds = requests.associateBy { requestId.next() }
             val serializable = requestIds.map { (id, request) ->

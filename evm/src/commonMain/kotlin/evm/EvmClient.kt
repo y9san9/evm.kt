@@ -25,11 +25,9 @@ public class EvmClient(
      */
     public val unsafe: EvmExecutor = EvmExecutor(endpoint, httpClient, json)
 
-    public inline fun <T> io(block: (EvmExecutor) -> T): EvmIO<T> {
-        return try {
-            EvmIO.Ok(block(unsafe))
-        } catch (exception: EvmIO.Exception) {
-            EvmIO.Fail(exception)
-        }
+    public inline fun <T> io(block: (EvmExecutor) -> T): EvmIO<T> = try {
+        EvmIO.Ok(block(unsafe))
+    } catch (exception: EvmIO.Exception) {
+        EvmIO.Fail(exception)
     }
 }

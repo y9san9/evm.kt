@@ -6,15 +6,15 @@ package evm
 public object EvmAbi {
     public const val ADDRESS_SIZE_BYTES: Int = 20
     public const val SIGNATURE_SIZE_BYTES: Int = 4
-    public const val PARAMETER_SIZE_BYTES: Int = 32
+    public const val ELEMENT_SIZE_BYTES: Int = 32
 
     public fun encodeCallData(
         signature: Signature,
-        parameters: List<Parameter>,
+        parameters: List<Element>,
     ): EvmCallData {
         val bytes = encodeSignature(signature).unsafeBytes +
             parameters.fold(byteArrayOf()) { bytes, parameter ->
-                bytes + encodeParameter(parameter).unsafeBytes
+                bytes + encodeElement(parameter).unsafeBytes
             }
         return EvmCallData(EvmHex.unsafe(bytes))
     }
@@ -30,18 +30,17 @@ public object EvmAbi {
             is Signature.Hex -> signature.hex
         }
 
-    public fun encodeParameter(parameter: Parameter): EvmHex =
-        when (parameter) {
-            is Parameter.Address -> encodeParameter(parameter)
-        }
+    public fun encodeElement(element: Element): EvmHex = when (element) {
+        is Element.Address -> encodeElement(element)
+    }
 
-    public fun encodeParameter(parameter: Parameter.Address): EvmHex {
-        val padSize = PARAMETER_SIZE_BYTES - ADDRESS_SIZE_BYTES
-        return EvmHex(PARAMETER_SIZE_BYTES) { i ->
+    public fun encodeElement(element: Element.Address): EvmHex {
+        val padSize = ELEMENT_SIZE_BYTES - ADDRESS_SIZE_BYTES
+        return EvmHex(ELEMENT_SIZE_BYTES) { i ->
             if (i < padSize) {
                 0
             } else {
-                parameter.address.hex[i - padSize]
+                element.address.hex[i - padSize]
             }
         }
     }
@@ -73,8 +72,8 @@ public object EvmAbi {
         public data class Hex(val hex: EvmHex) : Signature
     }
 
-    public sealed interface Parameter {
-        public data class Address(val address: EvmAddress) : Parameter
+    public sealed interface Element {
+        public data class Address(val address: EvmAddress) : Element
     }
 
     public sealed interface Descriptor<out T> {
